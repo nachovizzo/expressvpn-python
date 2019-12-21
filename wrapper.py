@@ -1,7 +1,9 @@
 import random
 import subprocess
 
-from expressvpn.commands import *
+VPN_CONNECT = 'expressvpn connect'
+VPN_LIST = 'expressvpn list'
+VPN_DISCONNECT = 'expressvpn disconnect'
 
 
 class ConnectException(Exception):
@@ -32,19 +34,29 @@ def activation_check():
 
 
 def connect():
-    return run_command(VPN_CONNECT)
+    return check_connection(run_command(VPN_CONNECT))
 
 
 def disconnect():
-    return run_command(VPN_DISCONNECT)
+    run_command(VPN_DISCONNECT)
+    return
 
 
 def is_activated(connect_output):
-    return not check_if_string_is_in_output(connect_output,
-                                            'Please activate your account')
+    return not check_output(connect_output, 'Please activate your account')
 
 
-def check_if_string_is_in_output(out, string):
+def check_connection(out):
+    if check_output(
+            out, 'We were unable to connect to this VPN location'):
+        raise ConnectException()
+    if check_output(out, 'not found'):
+        raise ConnectException()
+    print('VPN Successfully connected')
+    return True
+
+
+def check_output(out, string):
     for item in out:
         if string in item:
             return True

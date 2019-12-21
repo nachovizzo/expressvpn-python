@@ -9,17 +9,23 @@ class ConnectException(Exception):
 
 
 def run_command(command):
-    p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
-    return list([str(v).replace('\\t', ' ').replace('\\n', ' ').replace('b\'', '').replace('\'', '')
-                .replace('b"', '')
-                 for v in iter(p.stdout.readline, b'')])
+    p = subprocess.Popen(command,
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.STDOUT,
+                         shell=True)
+    return list([
+        str(v).replace('\\t', ' ').replace('\\n',
+                                           ' ').replace('b\'', '').replace(
+                                               '\'', '').replace('b"', '')
+        for v in iter(p.stdout.readline, b'')
+    ])
 
 
 def activation_check():
     print('Checking if the client is activated... (Please wait)')
     out = connect()
     if not is_activated(out):
-        print('Please run <expressvpn activate> and provide your activation key. Program will exit.')
+        print('Run <expressvpn activate> and provide your activation key.')
         exit(1)
     print('Client is successfully logged in.')
     disconnect()
@@ -34,7 +40,8 @@ def disconnect():
 
 
 def is_activated(connect_output):
-    return not check_if_string_is_in_output(connect_output, 'Please activate your account')
+    return not check_if_string_is_in_output(connect_output,
+                                            'Please activate your account')
 
 
 def check_if_string_is_in_output(out, string):
@@ -52,7 +59,8 @@ def print_output(out):
 def connect_alias(alias):
     command = VPN_CONNECT + ' ' + str(alias)
     out = run_command(command)
-    if check_if_string_is_in_output(out, 'We were unable to connect to this VPN location'):
+    if check_if_string_is_in_output(
+            out, 'We were unable to connect to this VPN location'):
         raise ConnectException()
     if check_if_string_is_in_output(out, 'not found'):
         raise ConnectException()
@@ -97,7 +105,8 @@ def extract_aliases_2(vpn_list):
 def random_connect():
     # activation_check()
     disconnect()
-    vpn_list = run_command(VPN_LIST)[0:46]  # we use only US, UK, HK and JP VPN. Fastest ones!
+    vpn_list = run_command(VPN_LIST)[
+        0:46]  # we use only US, UK, HK and JP VPN. Fastest ones!
     print_output(vpn_list)
     aliases = extract_aliases(vpn_list)
     random.shuffle(aliases)

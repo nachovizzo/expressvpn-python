@@ -71,10 +71,10 @@ def print_output(out):
 def connect_alias(alias):
     command = VPN_CONNECT + ' ' + str(alias)
     out = run_command(command)
-    if check_if_string_is_in_output(
+    if check_output(
             out, 'We were unable to connect to this VPN location'):
         raise ConnectException()
-    if check_if_string_is_in_output(out, 'not found'):
+    if check_output(out, 'not found'):
         raise ConnectException()
     print('Successfully connected to {}'.format(alias))
 
